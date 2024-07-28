@@ -9,10 +9,10 @@ bool set_time = false;
 
 // If you need to set the initial time on your clock
 // please change these values below
-#define SET_HOURS   15    // set to current hours in 24-hour time (e.g., 15 is 3pm)
-#define SET_MINUTES 30    // set to current minutes
+#define SET_HOURS   12    // set to current hours in 24-hour time (e.g., 15 is 3pm)
+#define SET_MINUTES 33    // set to current minutes
 #define SET_SECONDS 0     // set to current seconds
-#define SET_DAY     8     // set to day of the month
+#define SET_DAY     28     // set to day of the month
 #define SET_MONTH   7     // set to month of the year (e.g., 7 is July)
 #define SET_YEAR    2024  // set to current year
 #define SET_WEEK    1     // set to day of the week (sun=1, sat=7)
@@ -32,26 +32,20 @@ void setDisplay(float seconds, float minutes, float hours){
   }
   if(hours < 0 || hours > 12){
     Serial.println("Error hour out of range, Hours: " + String(hours));
-    hours = hours - 12;
-    //return;
+    return;
   }
-  int minute_converted = ((minutes+0.0001)/60.0) * 255;
-  int hour_converted = ((hours+0.0001)/12.0) * 255;
 
-  int hour_adj_converted = ((minutes/60) * 21);
-  int min_adj_converted = ((seconds/60) * 4.2);
+  // Prepare values to write to output pins
+  int minute_converted = ((minutes)/60.0) * 255;
+  int hour_converted = ((hours)/12.0) * 255;
 
+  // Write values to output pins
   analogWrite(minutepin, minute_converted);
   analogWrite(hourpin, hour_converted);
 
   if(debug_mode) {
-    Serial.print("min_adj_converted: ");
-    Serial.print(min_adj_converted);
-    Serial.print("   hour_adj_converted: ");
-    Serial.println(hour_adj_converted);
     Serial.print("minute_converted: ");
     Serial.print(minute_converted);
-
     Serial.print("  hour_converted: ");
     Serial.println(hour_converted);
     Serial.println("");
@@ -129,12 +123,16 @@ void setup()
   pinMode(hourpin, OUTPUT);
 
   // Initialize the meters and write the full range of values
-  for (int pos = 0; pos <= 254; pos += 1) { // PWM position goes from 0 degrees to 254 degrees
+  for (int pos = 0; pos <= 255; pos += 1) { // PWM position goes from 0 degrees to 255 degrees
     // in steps of 1 degree
     analogWrite(minutepin, pos);
     analogWrite(hourpin, pos);
-    delay(15);                       // waits 15 ms for the servo to reach the position
+    delay(10);                       // waits 15 ms for the servo to reach the position
   }
+
+  // Wait one second before displaying correct time
+  delay(1000);
+  
   analogWrite(minutepin, 0);
   analogWrite(hourpin, 0);
 }
