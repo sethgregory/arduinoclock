@@ -12,7 +12,7 @@ bool set_time = false;
 #define SET_HOURS   12    // set to current hours in 24-hour time (e.g., 15 is 3pm)
 #define SET_MINUTES 33    // set to current minutes
 #define SET_SECONDS 0     // set to current seconds
-#define SET_DAY     28     // set to day of the month
+#define SET_DAY     28    // set to day of the month
 #define SET_MONTH   7     // set to month of the year (e.g., 7 is July)
 #define SET_YEAR    2024  // set to current year
 #define SET_WEEK    1     // set to day of the week (sun=1, sat=7)
@@ -20,7 +20,7 @@ bool set_time = false;
 // Set this value to true if you would like debug output on the serial console
 bool debug_mode = true;
 
-int minutepin = 9;  //  PWM pin for minutes
+int minutepin = 9;  // PWM pin for minutes
 int hourpin   = 10; // PWM pin for hours
 
 // Function to convert RTC time to analog values and write to output pins
@@ -31,13 +31,21 @@ void setDisplay(float seconds, float minutes, float hours){
     return;
   }
   if(hours < 0 || hours > 12){
-    Serial.println("Error hour out of range, Hours: " + String(hours));
+    Serial.println("Error hours out of range, Hours: " + String(hours));
     return;
+  }
+
+  // Adjust hours value down by one since meter begins at 1 o'clock
+  hours = hours - 1;
+
+  // Account for having subtracted one from "zero o'clock" case
+  if(hours < 0) {
+    hours = 11;
   }
 
   // Prepare values to write to output pins
   int minute_converted = ((minutes)/60.0) * 255;
-  int hour_converted = ((hours)/12.0) * 255;
+  int hour_converted = ((hours)/11.0) * 255;
 
   // Write values to output pins
   analogWrite(minutepin, minute_converted);
@@ -127,7 +135,7 @@ void setup()
     // in steps of 1 degree
     analogWrite(minutepin, pos);
     analogWrite(hourpin, pos);
-    delay(10);                       // waits 15 ms for the servo to reach the position
+    delay(10);                       // waits 10 ms for the servo to reach the position
   }
 
   // Wait one second before displaying correct time
@@ -148,5 +156,5 @@ void loop()
   setDisplay(RTC.getSeconds(), RTC.getMinutes(), RTC.getHours());
 
   // Wait 3 seconds before looping
-  delay(3000);
+  delay(1000);
 }
