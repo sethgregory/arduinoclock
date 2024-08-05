@@ -155,6 +155,6 @@ void loop()
   // Update the meters
   setDisplay(RTC.getSeconds(), RTC.getMinutes(), RTC.getHours());
 
-  // Wait 3 seconds before looping
+  // Wait 1 second before looping
   delay(1000);
 }
